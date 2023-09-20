@@ -17,26 +17,24 @@ def get_csv_from_user() -> str:
     return csv_file_name
 
 
-def formate_file_extension(usr_inp: str, mode: str = 'txt') -> str:
+def formate_file_extension(user_input: str, mode: str = 'txt') -> str:
     if mode == 'txt':
-        return usr_inp + ('.txt' if usr_inp[-4:] != '.txt' else '')
+        return user_input + ('.txt' if not user_input.endswith('.txt') else '')
     elif mode == 'csv':
-        return usr_inp + ('.csv' if usr_inp[-4:] != '.csv' else '')
+        return user_input + ('.csv' if not user_input.endswith('.csv') else '')
 
 
 def analyse_words_frequency(file_name) -> dict:
-    func_output = dict()
+    function_output = dict()
     with open(file_name, 'r', encoding='utf-8') as file:
         for line in file:
-            if line[0] == '\n':
-                continue
             for word in line.strip().split(' '):
-                if word in func_output.keys():
-                    func_output[word] += 1
+                if word in function_output.keys():
+                    function_output[word] += 1
                 else:
-                    func_output[word] = 1
-        file.close()
-    return func_output
+                    if word != '':
+                        function_output[word] = 1
+    return function_output
 
 
 def return_results_csv(csv_file_name: str, words_frequency: dict) -> None:
