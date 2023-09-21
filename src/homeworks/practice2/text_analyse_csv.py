@@ -1,5 +1,6 @@
 import csv
 import os.path
+from collections import Counter
 
 
 def get_txt_from_user() -> str:
@@ -24,20 +25,17 @@ def formate_file_extension(user_input: str, mode: str = 'txt') -> str:
         return user_input + ('.csv' if not user_input.endswith('.csv') else '')
 
 
-def analyse_words_frequency(file_name) -> dict:
-    function_output = dict()
+def analyse_words_frequency(file_name) -> Counter:
+    function_output = Counter()
     with open(file_name, 'r', encoding='utf-8') as file:
         for line in file:
             for word in line.strip().split(' '):
-                if word in function_output.keys():
+                if word:
                     function_output[word] += 1
-                else:
-                    if word != '':
-                        function_output[word] = 1
     return function_output
 
 
-def return_results_csv(csv_file_name: str, words_frequency: dict) -> None:
+def return_results_csv(csv_file_name: str, words_frequency: Counter) -> None:
     with open(csv_file_name, 'w', encoding='utf-8', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';')
         csv_writer.writerow(['Word', 'Frequency'])
