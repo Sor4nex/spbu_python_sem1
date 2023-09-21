@@ -1,8 +1,8 @@
 import os.path
 
 
-def formate_file_extension(usr_inp: str) -> str:
-    return usr_inp + ('.txt' if usr_inp[-4:] != '.txt' else '')
+def formate_file_extension(user_input: str) -> str:
+    return user_input + ('.txt' if not user_input.endswith('.txt') else '')
 
 
 def get_txts_from_user() -> tuple:
@@ -16,20 +16,22 @@ def get_txts_from_user() -> tuple:
     return source_file_name, output_file_name
 
 
-def operation_dna_delete(dna: str, start_patern: str, end_patern: str) -> str:
-    return dna[:dna.index(start_patern)] + dna[dna.index(end_patern) + len(end_patern):]
+def operation_dna_delete(dna: str, start_pattern: str, end_pattern: str) -> str:
+    first_index_of_start_pattern = dna.index(start_pattern)
+    last_index_of_end_pattern = dna.index(end_pattern) + len(end_pattern)
+    return dna[:first_index_of_start_pattern] + dna[last_index_of_end_pattern:]
 
 
-def operation_dna_insert(dna: str, start_patern: str, insert_snippet: str) -> str:
-    return dna[:dna.index(start_patern) + len(start_patern)] + insert_snippet + dna[dna.index(start_patern) + len(
-        start_patern):]
+def operation_dna_insert(dna: str, start_pattern: str, insert_snippet: str) -> str:
+    last_index_of_start_pattern = dna.index(start_pattern) + len(start_pattern)
+    return dna[:last_index_of_start_pattern] + insert_snippet + dna[last_index_of_start_pattern:]
 
 
 def operation_dna_replace(dna: str, pattern_to_replace: str, replace_snippet: str) -> str:
     return dna.replace(pattern_to_replace, replace_snippet, 1)
 
 
-def calculate_dna_transformation(source_file_name: str, ) -> list:
+def calculate_dna_transformation(source_file_name: str) -> list:
     all_dna_transformations = list()
     with open(source_file_name, 'r', encoding='utf-8') as file:
         file.readline()
@@ -45,15 +47,13 @@ def calculate_dna_transformation(source_file_name: str, ) -> list:
             else:
                 current_dna = operation_dna_replace(current_dna, first_arg, second_arg)
             all_dna_transformations.append(current_dna)
-        file.close()
     return all_dna_transformations
 
 
 def return_results_txt(output_file_name: str, dna_transformations: list) -> None:
     with open(output_file_name, 'w', encoding='utf-8') as file:
         for dna in dna_transformations:
-            file.write(dna + '\n')
-        file.close()
+            print(dna, file=file)
 
 
 if __name__ == '__main__':
