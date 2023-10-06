@@ -17,7 +17,7 @@ def create_new_stack() -> Stack:
 
 
 def empty(given_stack: Stack) -> bool:
-    return not bool(size(given_stack))
+    return size(given_stack) == 0
 
 
 def size(given_stack: Stack) -> int:
@@ -46,7 +46,7 @@ def pop(given_stack: Stack) -> None:
 
 if __name__ == "__main__":
     stack_1 = create_new_stack()
-    print(top(stack_1)) # None
+    print(top(stack_1))  # None
     push(stack_1, 34)
     print(empty(stack_1))  # False
     print(size(stack_1))  # 1
