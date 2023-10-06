@@ -2,7 +2,7 @@ from collections import namedtuple
 from dataclasses import dataclass
 
 
-StackElement = namedtuple("StakElement", ["current_element", "next_element"])
+StackElement = namedtuple("StackElement", ["current_value", "next_value"])
 
 
 @dataclass
@@ -11,14 +11,12 @@ class Stack:
     head: StackElement
 
 
-def create_new_stack(value) -> Stack:
-    return Stack(1, StackElement(value, None))
+def create_new_stack() -> Stack:
+    return Stack(0, StackElement(None, None))
 
 
 def empty(given_stack: Stack) -> bool:
-    if size(given_stack) == 0:
-        return True
-    return False
+    return not bool(size(given_stack))
 
 
 def size(given_stack: Stack) -> int:
@@ -28,26 +26,26 @@ def size(given_stack: Stack) -> int:
 def top(given_stack: Stack) -> any:
     if empty(given_stack):
         return None
-    return given_stack.head.current_element
+    return given_stack.head.current_value
 
 
-def push(given_stack: Stack, new_element: any) -> None:
+def push(given_stack: Stack, new_value: any) -> None:
     current_head = given_stack.head
-    given_stack.head = StackElement(new_element, current_head)
+    given_stack.head = StackElement(new_value, current_head)
     given_stack.size += 1
 
 
 def pop(given_stack: Stack) -> None:
     if empty(given_stack):
-        print("Stack is already empty!")
         return None
     current_head = given_stack.head
-    given_stack.head = current_head.next_element
+    given_stack.head = current_head.next_value
     given_stack.size -= 1
 
 
 if __name__ == "__main__":
-    stack_1 = create_new_stack(34)
+    stack_1 = create_new_stack()
+    push(stack_1, 34)
     print(empty(stack_1))  # False
     print(size(stack_1))  # 1
     print(top(stack_1))  # 34
