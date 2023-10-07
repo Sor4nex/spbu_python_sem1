@@ -2,7 +2,9 @@ from random import choice
 from itertools import permutations
 
 
-def get_command_with_validation(print_out_note: str, avaliable_options: list[str]) -> str:
+def get_command_with_validation(
+    print_out_note: str, avaliable_options: list[str]
+) -> str:
     command = input(print_out_note)
     while command not in avaliable_options:
         print("Ошибка, введите цифру.")
@@ -14,13 +16,21 @@ def get_user_number_guess(user_attempts: int) -> list[int]:
     user_input_guess = input(
         f"Попытка №{user_attempts + 1}. Введите предполагаемое число: "
     )
-    while not user_input_guess.isdigit() or any(user_input_guess.count(numeral) > 1 for numeral in user_input_guess) or len(user_input_guess) != 4:
-        print('Ошибка. Вы должны ввести 4-ёх значное число с неповторяющимися цифрами.')
-        user_input_guess = input(f"Попытка №{user_attempts + 1}. Введите предполагаемое число: ")
+    while (
+        not user_input_guess.isdigit()
+        or any(user_input_guess.count(numeral) > 1 for numeral in user_input_guess)
+        or len(user_input_guess) != 4
+    ):
+        print("Ошибка. Вы должны ввести 4-ёх значное число с неповторяющимися цифрами.")
+        user_input_guess = input(
+            f"Попытка №{user_attempts + 1}. Введите предполагаемое число: "
+        )
     return list(int(numeral) for numeral in user_input_guess)
 
 
-def count_cows_and_bulls(goal_number_list: list[int], user_number_guess_list: list[int]) -> tuple[int, int]:
+def count_cows_and_bulls(
+    goal_number_list: list[int], user_number_guess_list: list[int]
+) -> tuple[int, int]:
     cows_counter = bulls_counter = 0
     for i, numeral in enumerate(user_number_guess_list):
         if numeral in goal_number_list:
@@ -58,7 +68,9 @@ def start_game() -> None:
     )
 
 
-COMMAND_OPTIONS_STRING = "Выберите одну из опций:\n1. Начать игру\n2. Правилы игры\n9. Выйти\nВаш выбор: "
+COMMAND_OPTIONS_STRING = (
+    "Выберите одну из опций:\n1. Начать игру\n2. Правилы игры\n9. Выйти\nВаш выбор: "
+)
 GAME_RULES_STRING = """ПРАВИЛА ИГРЫ:
     1.Компьютер загадывает 4-ех значное число.
     2.Вы вводите 4-ех число, которое, как вам кажется, верное.
