@@ -14,13 +14,15 @@ def parse_given_argument(args: list) -> tuple:
     return left_border, right_border, file_name_input, file_name_output
 
 
-def classify_input_file(file_name: str, left_border: float, right_border: float) -> tuple[list, list, list]:
+def classify_input_file(
+    file_name: str, left_border: float, right_border: float
+) -> tuple[list, list, list]:
     left_interval = []
     right_interval = []
     middle_segment = []
-    with open(file_name, 'r') as file:
+    with open(file_name, "r") as file:
         for line in file:
-            for number in line.strip().split(' '):
+            for number in line.strip().split(" "):
                 number = float(number)
                 if number < left_border:
                     left_interval.append(number)
@@ -31,8 +33,13 @@ def classify_input_file(file_name: str, left_border: float, right_border: float)
     return left_interval, middle_segment, right_interval
 
 
-def write_result_in_output_file(file_name: str, left_interval: list[float],middle_segment: list[float], right_interval: list[float]) -> None:
-    with open(file_name, 'w') as file:
+def write_result_in_output_file(
+    file_name: str,
+    left_interval: list[float],
+    middle_segment: list[float],
+    right_interval: list[float],
+) -> None:
+    with open(file_name, "w") as file:
         for number_left in left_interval:
             print(number_left, file=file)
         print("", file=file)
@@ -47,7 +54,9 @@ if __name__ == "__main__":
     if len(sys.argv[1:]) != 4:
         print("Error: Not enough or too many arguments")
         sys.exit(0)
-    left_border, right_border, file_name_input, file_name_output = parse_given_argument(sys.argv)
+    left_border, right_border, file_name_input, file_name_output = parse_given_argument(
+        sys.argv
+    )
     if not check_file_existence(file_name_input):
         print(f"Error: no such file {file_name_input}")
         sys.exit(0)
@@ -57,5 +66,9 @@ if __name__ == "__main__":
     elif left_border > right_border:
         print(f"Error: first number cant be greater, then second one")
         sys.exit(0)
-    left_interval, middle_segment, right_interval = classify_input_file(file_name_input, left_border, right_border)
-    write_result_in_output_file(file_name_output, left_interval, middle_segment, right_interval)
+    left_interval, middle_segment, right_interval = classify_input_file(
+        file_name_input, left_border, right_border
+    )
+    write_result_in_output_file(
+        file_name_output, left_interval, middle_segment, right_interval
+    )
