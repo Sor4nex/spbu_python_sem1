@@ -1,8 +1,15 @@
 def validate_user_input() -> int:
     user_input = input("Input number: ")
+    signed = False
     while not user_input.isdigit():
+        if user_input[0] == "-":
+            signed = True
+            user_input = user_input[1:]
+            continue
         user_input = input("Error!: input number: ")
-    return int(user_input)
+    if not signed:
+        return int(user_input)
+    return -int(user_input)
 
 
 def invert_direct_encoding_binary(input_binary_number: str) -> str:
@@ -132,9 +139,9 @@ if __name__ == "__main__":
     second_decimal = validate_user_input()
     if (-127 <= first_decimal <= 127) and (-127 <= second_decimal <= 127):
         first_binary = convert_decimal_to_binary(first_decimal)
-        second_binary = convert_decimal_to_binary(second_decimal, len(first_binary))
+        second_binary = convert_decimal_to_binary(second_decimal)
     else:
-        if first_decimal >= second_decimal:
+        if abs(first_decimal) >= abs(second_decimal):
             first_binary = convert_decimal_to_binary(first_decimal)
             second_binary = convert_decimal_to_binary(second_decimal, len(first_binary))
         else:
@@ -145,7 +152,7 @@ if __name__ == "__main__":
     binary_difference = operation_minus_binary(first_binary, second_binary)
     decimal_difference = convert_binary_to_decimal(binary_difference)
     print(
-        f"""First decimal: {first_binary}, in binary: {first_binary}
+        f"""First decimal: {first_decimal}, in binary: {first_binary}
 Second decimal: {second_decimal}, in binary: {second_binary}
 Binary sum: {first_binary} + {second_binary} = {binary_sum}, in decimal: {decimal_sum}
 Binary difference: {first_binary} - {second_binary} = {binary_difference}, in decimal: {decimal_difference}"""
