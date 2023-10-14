@@ -2,7 +2,9 @@ def curry_explicit(function_to_curry, function_arity, given_args=None):
     if given_args is None:
         given_args = []
     if function_arity < 0:
-        return None  # Error: wrong function arity
+        raise ValueError(
+            f"wrong curry arity. Arity should be >= 0, while {function_arity} was given"
+        )
 
     def curried_function(new_given_argument=None):
         if new_given_argument is None:
@@ -23,7 +25,9 @@ def curry_explicit(function_to_curry, function_arity, given_args=None):
 def uncurry_explicit(function_to_uncurry, function_arity):
     def uncurried_function(*args):
         if function_arity != len(args):
-            return None  # Error: wrong function arity
+            raise TypeError(
+                f"uncurried function takes {function_arity} positional arguments, {len(args)} were given"
+            )
         if function_arity == 0:
             return function_to_uncurry()
         res = function_to_uncurry(args[0])
