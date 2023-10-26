@@ -10,30 +10,34 @@ INPUT_INVITATION = "Введите 3 числа (коэффициенты ква
 BAD_INPUT = "Неверный формат!"
 
 
-def is_float_numbers(input_str: str) -> bool:
+def is_float_number(input_str: str) -> bool:
+    try:
+        float(input_str)
+    except ValueError:
+        return False
+    return True
+
+
+def parse_user_input(input_str: str) -> bool:
     input_str = input_str.split(" ")
     if len(input_str) != 3:
         return False
     for coefficient in input_str:
-        try:
-            float(coefficient.strip())
-        except ValueError:
+        if not is_float_number(coefficient.strip()):
             return False
     return True
 
 
-def solve_function(
+def solve_linear_function(first_coefficient: float, second_coefficient: float) -> float:
+    return -second_coefficient / first_coefficient
+
+
+def solve_quadratic_function(
     first_coefficient: float, second_coefficient: float, third_coefficient: float
 ) -> tuple[float, ...]:
-    if first_coefficient == 0:
-        if second_coefficient == 0:
-            if third_coefficient == 0:
-                raise ValueError("корень - любое вещественное число")
-            raise ValueError("корня данного уравнения не существует")
-        return (-third_coefficient / second_coefficient,)
     discriminant = second_coefficient**2 - 4 * first_coefficient * third_coefficient
     if discriminant < 0:
-        raise ValueError("дискриминант уравнения меньше 0, решений нет")
+        raise ArithmeticError("дискриминант уравнения меньше 0, решений нет")
     elif discriminant == 0:
         result1 = (-second_coefficient + (discriminant) ** 0.5) / (
             2 * first_coefficient
@@ -44,10 +48,24 @@ def solve_function(
     return result1, result2
 
 
+def solve_function(
+    first_coefficient: float, second_coefficient: float, third_coefficient: float
+) -> tuple[float, ...]:
+    if first_coefficient == 0:
+        if second_coefficient == 0:
+            if third_coefficient == 0:
+                raise ValueError("корень - любое вещественное число")
+            raise ValueError("корня данного уравнения не существует")
+        return (solve_linear_function(second_coefficient, third_coefficient),)
+    return solve_quadratic_function(
+        first_coefficient, second_coefficient, third_coefficient
+    )
+
+
 def main() -> None:
     print(GREET_USER + "\n" + INFO_STRING)
     user_input = input(INPUT_INVITATION).strip()
-    if not is_float_numbers(user_input):
+    if not parse_user_input(user_input):
         print(BAD_INPUT)
         return None
     coefficients = [float(number.strip()) for number in user_input.split(" ")]
@@ -56,8 +74,8 @@ def main() -> None:
         return None
     try:
         result = solve_function(*coefficients)
-    except ValueError as error:
-        result = [str(error)]
+    except (ValueError, ArithmeticError) as error:
+        result = (str(error),)
     print("Ответ:", *result)
 
 
