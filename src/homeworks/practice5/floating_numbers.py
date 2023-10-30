@@ -51,7 +51,7 @@ def normalize_binary(input_binary: str) -> tuple[str, int]:
     else:
         new_dot_index = input_binary.index("1") + 1
         input_binary.insert(input_binary.index("1") + 1, ".")
-        input_binary = input_binary[new_dot_index - 1:]
+        input_binary = input_binary[new_dot_index - 1 :]
     return "".join(input_binary), dot_index - new_dot_index
 
 
@@ -106,7 +106,9 @@ def decimal_in_exponential(input_decimal_float: float) -> str:
     output_binary_normalized, base_range, input_decimal_signed = normalize_decimal(
         input_decimal_float
     )
-    output_binary_normalized, additional_base_range = normalize_binary_with_first_0(output_binary_normalized)
+    output_binary_normalized, additional_base_range = normalize_binary_with_first_0(
+        output_binary_normalized
+    )
     if input_decimal_signed:
         output_binary_normalized = "-" + str(output_binary_normalized)
     else:
