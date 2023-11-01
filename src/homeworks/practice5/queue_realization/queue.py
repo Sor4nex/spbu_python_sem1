@@ -33,7 +33,7 @@ def get_top(given_queue: Queue) -> Any:
     return given_queue.head.current_value
 
 
-def push(given_queue: Queue, new_value: any) -> None:
+def push(given_queue: Queue, new_value: Any) -> None:
     new_element = Node(new_value, None)
     if is_empty(given_queue):
         given_queue.head = new_element
