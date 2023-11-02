@@ -12,6 +12,13 @@ def validate_user_input() -> int:
     return -int(user_input)
 
 
+def get_encoding_bit_depth(first_decimal: int, second_decimal: int) -> int:
+    for bit_depth in range(8, 100, 8):
+        sum_decimal_abs = abs(first_decimal) + abs(second_decimal)
+        if sum_decimal_abs <= 2 ** (bit_depth - 1) - 1:
+            return bit_depth
+
+
 def invert_direct_encoding_binary(input_binary_number: str) -> str:
     return "".join(["0" if digit == "1" else "1" for digit in input_binary_number])
 
@@ -134,19 +141,12 @@ def operation_minus_binary(first_binary: str, second_binary: str) -> str:
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
     first_decimal = validate_user_input()
     second_decimal = validate_user_input()
-    if (-127 <= first_decimal <= 127) and (-127 <= second_decimal <= 127):
-        first_binary = convert_decimal_to_binary(first_decimal)
-        second_binary = convert_decimal_to_binary(second_decimal)
-    else:
-        if abs(first_decimal) >= abs(second_decimal):
-            first_binary = convert_decimal_to_binary(first_decimal)
-            second_binary = convert_decimal_to_binary(second_decimal, len(first_binary))
-        else:
-            second_binary = convert_decimal_to_binary(second_decimal)
-            first_binary = convert_decimal_to_binary(first_decimal, len(second_binary))
+    needed_bit_depth = get_encoding_bit_depth(first_decimal, second_decimal)
+    first_binary = convert_decimal_to_binary(first_decimal, needed_bit_depth)
+    second_binary = convert_decimal_to_binary(second_decimal, needed_bit_depth)
     binary_sum = operation_plus_binary(first_binary, second_binary)
     decimal_sum = convert_binary_to_decimal(binary_sum)
     binary_difference = operation_minus_binary(first_binary, second_binary)
@@ -157,3 +157,7 @@ Second decimal: {second_decimal}, in binary: {second_binary}
 Binary sum: {first_binary} + {second_binary} = {binary_sum}, in decimal: {decimal_sum}
 Binary difference: {first_binary} - {second_binary} = {binary_difference}, in decimal: {decimal_difference}"""
     )
+
+
+if __name__ == "__main__":
+    main()
