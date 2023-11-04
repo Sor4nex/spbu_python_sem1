@@ -3,7 +3,7 @@ from pytest import *
 from src.practice.practice7.binary_search_tree import *
 
 
-def make_dummy(input_keys_list: list, input_values_list: list) -> Tree:
+def make_dummy(input_keys_list: list, input_values_list: list) -> Tree[V]:
     tree = create_tree()
     for i in range(len(input_keys_list)):
         put_value_by_key(tree, input_keys_list[i], input_values_list[i])
@@ -29,26 +29,26 @@ def test_is_valid_key_type(key_type: type, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    "tree_type,new_key,expected",
+    "tree_map,new_key,expected",
     [
-        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]).type, 55, True),
-        (make_dummy(["1", "2", "3"], ["foo", "foo", "foo"]).type, "4", True),
-        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]).type, "4", False),
-        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]).type, [1, 2, 3], False),
+        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]), 55, True),
+        (make_dummy(["1", "2", "3"], ["foo", "foo", "foo"]), "4", True),
+        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]), "4", False),
+        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]), [1, 2, 3], False),
         (
-            make_dummy([[1, 2, 3], [2, 3, 4], [5]], ["foo", "foo", "foo"]).type,
+            make_dummy([[1, 2, 3], [2, 3, 4], [5]], ["foo", "foo", "foo"]),
             [1, 2, 3],
             True,
         ),
-        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]).type, 4.3, True),
-        (make_dummy([1.3, 2.2, 3.4], ["foo", "foo", "foo"]).type, 4, True),
-        (make_dummy([[1], [2], [3]], ["foo", "foo", "foo"]).type, (5, 9), False),
+        (make_dummy([1, 2, 3], ["foo", "foo", "foo"]), 4.3, True),
+        (make_dummy([1.3, 2.2, 3.4], ["foo", "foo", "foo"]), 4, True),
+        (make_dummy([[1], [2], [3]], ["foo", "foo", "foo"]), (5, 9), False),
     ],
 )
 def test_check_correct_value_type(
-    tree_type: type, new_key: Any, expected: bool
+    tree_map: Tree[V], new_key: V, expected: bool
 ) -> None:
-    result = check_correct_key_type(tree_type, new_key)
+    result = check_correct_key_type(tree_map, new_key)
     assert result == expected
 
 
@@ -64,7 +64,7 @@ def test_check_correct_value_type(
         (make_dummy([1], [0]), 1, 0),
     ],
 )
-def test_get_value_by_key(tree_map: Tree, key: Any, expected: Any) -> None:
+def test_get_value_by_key(tree_map: Tree[V], key: V, expected: V) -> None:
     result = get_value_by_key(tree_map, key)
     assert result == expected
 
@@ -74,10 +74,11 @@ def test_get_value_by_key(tree_map: Tree, key: Any, expected: Any) -> None:
     [
         (make_dummy([5, 4, 6], ["a", "b", "c"]), 1),
         (make_dummy([], []), 5),
+        (create_tree(), 0),
         (make_dummy([1], [1]), 5),
     ],
 )
-def test_get_value_by_key_exception_case(tree_map: Tree, key: Any) -> None:
+def test_get_value_by_key_exception_case(tree_map: Tree[V], key: V) -> None:
     with pytest.raises(ValueError):
         get_value_by_key(tree_map, key)
 
@@ -94,10 +95,11 @@ def test_get_value_by_key_exception_case(tree_map: Tree, key: Any) -> None:
         (make_dummy([1], [0]), 1, True),
         (make_dummy([5, 4, 6], ["a", "b", "c"]), 1, False),
         (make_dummy([], []), 5, False),
+        (create_tree(), 4, False),
         (make_dummy([1], [1]), 5, False),
     ],
 )
-def test_has_key(tree_map: Tree, key: Any, expected: bool) -> None:
+def test_has_key(tree_map: Tree[V], key: V, expected: bool) -> None:
     result = has_key(tree_map, key)
     assert result == expected
 
@@ -158,9 +160,13 @@ def test_traverse(tree_map: Tree[V], order: str, expected: list[V]) -> None:
     assert result == expected
 
 
-def test_traverse_exception_case() -> None:
+@pytest.mark.parametrize(
+    "tree_map,order",
+    [(create_tree(), "preorder"), (make_dummy([1, 2, 3], [3, 4, 5]), "monkeflipPOG:D")],
+)
+def test_traverse_exception_case(tree_map: Tree[V], order: str) -> None:
     with pytest.raises(ValueError):
-        traverse(make_dummy([], []), "preorder")
+        traverse(tree_map, order)
 
 
 @pytest.mark.parametrize(
@@ -205,7 +211,7 @@ def test_traverse_exception_case() -> None:
     ],
 )
 def test_put_value_by_key(
-    tree_map: Tree[V], key: Any, value_to_put: Any, expected: list[V]
+    tree_map: Tree[V], key: V, value_to_put: V, expected: list[V]
 ) -> None:
     put_value_by_key(tree_map, key, value_to_put)
     result = traverse(tree_map, "preorder")
@@ -232,7 +238,7 @@ def test_put_value_by_key(
     ],
 )
 def test_put_value_by_key_exception_cases(
-    tree_map: Tree[V], key: Any, value_to_put: Any
+    tree_map: Tree[V], key: V, value_to_put: V
 ) -> None:
     with pytest.raises(ValueError):
         put_value_by_key(tree_map, key, value_to_put)
@@ -261,7 +267,7 @@ def test_put_value_by_key_exception_cases(
         ),
     ],
 )
-def test_remove_value_by_key(tree_map: Tree[V], key: Any, expected) -> None:
+def test_remove_value_by_key(tree_map: Tree[V], key: V, expected) -> None:
     remove_value_by_key(tree_map, key)
     result = traverse(tree_map)
     assert result == expected
@@ -288,21 +294,23 @@ def test_remove_value_by_key(tree_map: Tree[V], key: Any, expected) -> None:
         ),
     ],
 )
-def test_remove_value_by_key(tree_map: Tree[V], key: Any) -> None:
+def test_remove_value_by_key(tree_map: Tree[V], key: V) -> None:
     with pytest.raises(ValueError):
         remove_value_by_key(tree_map, key)
 
 
-def test_delete_tree_map() -> None:
-    tree_map = make_dummy(
-        [5, 0, -10, 3, 7, 9, 8, 14, 12, 11, 13, 15],
-        [5, 0, -10, 3, 7, 9, 8, 14, 12, 11, 13, 15],
-    )
+@pytest.mark.parametrize(
+    "tree_map",
+    [
+        (
+            make_dummy(
+                [5, 0, -10, 3, 7, 9, 8, 14, 12, 11, 13, 15],
+                [5, 0, -10, 3, 7, 9, 8, 14, 12, 11, 13, 15],
+            )
+        ),
+        (create_tree()),
+    ],
+)
+def test_delete_tree_map(tree_map: Tree[V]) -> None:
     delete_tree_map(tree_map)
     assert tree_map == create_tree()
-
-
-def test_delete_tree_map_exception_case() -> None:
-    tree_map = make_dummy([], [])
-    with pytest.raises(ValueError):
-        delete_tree_map(tree_map)
