@@ -1,22 +1,25 @@
+def is_integer(input_str: str) -> bool:
+    try:
+        int(input_str)
+        return True
+    except ValueError:
+        return False
+
+
 def validate_user_input() -> int:
     user_input = input("Input number: ")
-    signed = False
-    while not user_input.isdigit():
-        if user_input[0] == "-":
-            signed = True
-            user_input = user_input[1:]
-            continue
-        user_input = input("Error!: input number: ")
-    if not signed:
-        return int(user_input)
-    return -int(user_input)
+    while not is_integer(user_input):
+        print("Error: this sequence is not a number")
+        user_input = input("Input number: ")
+    return int(user_input)
 
 
 def get_encoding_bit_depth(first_decimal: int, second_decimal: int) -> int:
-    for bit_depth in range(8, 100, 8):
-        sum_decimal_abs = abs(first_decimal) + abs(second_decimal)
-        if sum_decimal_abs <= 2 ** (bit_depth - 1) - 1:
-            return bit_depth
+    bit_depth = 8
+    sum_decimal_abs = abs(first_decimal) + abs(second_decimal)
+    while sum_decimal_abs > 2 ** (bit_depth - 1) - 1:
+        bit_depth += 8
+    return bit_depth
 
 
 def invert_direct_encoding_binary(input_binary_number: str) -> str:
