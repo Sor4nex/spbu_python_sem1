@@ -3,21 +3,22 @@ from numbers import Number
 from typing import Optional, TypeVar, Generic, Callable, Iterable
 
 AVAILABLE_TYPES = (int, float, str, tuple, list)
-V = TypeVar("V", int, float, str, tuple, list)
+K = TypeVar("K", int, float, str, tuple, list)
+V = TypeVar("V")
 
 
 @dataclass
-class TreeNode(Generic[V]):
-    key: V
+class TreeNode(Generic[K, V]):
+    key: K
     value: V
-    left: Optional["TreeNode[V]"] = None
-    right: Optional["TreeNode[V]"] = None
+    left: Optional["TreeNode[K, V]"] = None
+    right: Optional["TreeNode[K, V]"] = None
 
 
 @dataclass
-class Tree(Generic[V]):
-    type: Optional[V] = None
-    root: Optional[TreeNode[V]] = None
+class Tree(Generic[K, V]):
+    type: Optional[type] = None
+    root: Optional[TreeNode[K, V]] = None
     size: int = 0
 
 
@@ -25,7 +26,7 @@ def is_valid_key_type(key_type: type) -> bool:
     return key_type in AVAILABLE_TYPES
 
 
-def check_correct_key_type(tree_map: Tree[V], new_key: V) -> bool:
+def check_correct_key_type(tree_map: Tree[K, V], new_key: K) -> bool:
     return (
         tree_map.type is None
         or isinstance(new_key, tree_map.type)
@@ -34,12 +35,12 @@ def check_correct_key_type(tree_map: Tree[V], new_key: V) -> bool:
     )
 
 
-def create_tree() -> Tree[V]:
+def create_tree() -> Tree[K, V]:
     return Tree()
 
 
-def delete_tree_map(tree_map: Tree[V]) -> None:
-    def delete_recursively(tree_node: TreeNode[V]) -> None:
+def delete_tree_map(tree_map: Tree[K, V]) -> None:
+    def delete_recursively(tree_node: TreeNode[K, V]) -> None:
         if tree_node.right is None and tree_node.left is None:
             del tree_node
         else:
@@ -58,8 +59,8 @@ def delete_tree_map(tree_map: Tree[V]) -> None:
     del tree_map.root
 
 
-def put_value_by_key(tree: Tree[V], key: V, value_to_put: V) -> None:
-    def put_recursively(tree_node: TreeNode[V], key: V, value_to_put: V) -> None:
+def put_value_by_key(tree: Tree[K, V], key: K, value_to_put: V) -> None:
+    def put_recursively(tree_node: TreeNode[K, V], key: K, value_to_put: V) -> None:
         if tree_node.key is None:
             tree_node.key = key
             tree_node.value = value_to_put
@@ -88,26 +89,29 @@ def put_value_by_key(tree: Tree[V], key: V, value_to_put: V) -> None:
     tree.size += 1
 
 
-def get_value_by_key(tree_map: Tree[V], key: V) -> V:
+def get_value_by_key(tree_map: Tree[K, V], key: K) -> V:
     key_cell = get_cell_by_key(tree_map, key)
     if key_cell is None:
         raise ValueError(f"no key {key} was found")
     return key_cell.value
 
 
-def traverse(tree_map: Tree[V], order: str = "preorder") -> list[V]:
+def traverse(tree_map: Tree[K, V], order: str = "preorder") -> list[V]:
     result_values = []
 
-    def _preorder_comparator(tree_node: TreeNode[V]) -> Iterable[TreeNode[V]]:
+    def _preorder_comparator(tree_node: TreeNode[K, V]) -> Iterable[TreeNode[K, V]]:
         return filter(None, (tree_node, tree_node.left, tree_node.right))
 
-    def _inorder_comparator(tree_node: TreeNode[V]) -> Iterable[TreeNode[V]]:
+    def _inorder_comparator(tree_node: TreeNode[K, V]) -> Iterable[TreeNode[K, V]]:
         return filter(None, (tree_node.left, tree_node, tree_node.right))
 
-    def _postorder_comparator(tree_node: TreeNode[V]) -> Iterable[TreeNode[V]]:
+    def _postorder_comparator(tree_node: TreeNode[K, V]) -> Iterable[TreeNode[K, V]]:
         return filter(None, (tree_node.left, tree_node.right, tree_node))
 
-    def traverse_recursion(tree_node: TreeNode[V], order_function: Callable):
+    def traverse_recursion(
+        tree_node: TreeNode[K, V],
+        order_function: Callable[[TreeNode[K, V]], Iterable[TreeNode[K, V]]],
+    ) -> None:
         node_order = order_function(tree_node)
         for node in node_order:
             if node is not tree_node:
@@ -130,18 +134,18 @@ def traverse(tree_map: Tree[V], order: str = "preorder") -> list[V]:
     return result_values
 
 
-def remove_value_by_key(tree_map: Tree[V], key: V) -> V:
+def remove_value_by_key(tree_map: Tree[K, V], key: K) -> V:
     if not has_key(tree_map, key):
         raise ValueError(f"No such key {key}")
 
-    def find_minimal_son(tree_map: TreeNode[V]) -> TreeNode[V]:
-        if tree_map.left is not None:
-            return find_minimal_son(tree_map.left)
-        return tree_map
+    def find_minimal_son(tree_node: TreeNode[K, V]) -> TreeNode[K, V]:
+        if tree_node.left is not None:
+            return find_minimal_son(tree_node.left)
+        return tree_node
 
     def remove_recursion(
-        tree_node: TreeNode[V], key: V
-    ) -> tuple[Optional[TreeNode[V]], key]:
+        tree_node: TreeNode[K, V], key: K
+    ) -> tuple[Optional[TreeNode[K, V]], V]:
         if tree_node.key < key:
             new_right_child, value = remove_recursion(tree_node.right, key)
             tree_node.right = new_right_child
@@ -167,8 +171,10 @@ def remove_value_by_key(tree_map: Tree[V], key: V) -> V:
     return value
 
 
-def get_cell_by_key(tree_map: Tree[V], key: V) -> Optional[TreeNode[V]]:
-    def get_cell_recursively(tree_node: TreeNode[V], key: V) -> Optional[TreeNode[V]]:
+def get_cell_by_key(tree_map: Tree[K, V], key: K) -> Optional[TreeNode[K, V]]:
+    def get_cell_recursively(
+        tree_node: TreeNode[K, V], key: K
+    ) -> Optional[TreeNode[K, V]]:
         if key == tree_node.key:
             return tree_node
         elif tree_node.right is not None and key > tree_node.key:
@@ -182,6 +188,6 @@ def get_cell_by_key(tree_map: Tree[V], key: V) -> Optional[TreeNode[V]]:
     return get_cell_recursively(tree_map.root, key)
 
 
-def has_key(tree_map: Tree[V], key: V) -> bool:
+def has_key(tree_map: Tree[K, V], key: K) -> bool:
     key_cell = get_cell_by_key(tree_map, key)
     return key_cell is not None

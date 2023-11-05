@@ -3,7 +3,7 @@ from pytest import *
 from src.practice.practice7.binary_search_tree import *
 
 
-def make_dummy(input_keys_list: list, input_values_list: list) -> Tree[V]:
+def make_dummy(input_keys_list: list[K], input_values_list: list[V]) -> Tree[K, V]:
     tree = create_tree()
     for i in range(len(input_keys_list)):
         put_value_by_key(tree, input_keys_list[i], input_values_list[i])
@@ -46,7 +46,7 @@ def test_is_valid_key_type(key_type: type, expected: bool) -> None:
     ],
 )
 def test_check_correct_value_type(
-    tree_map: Tree[V], new_key: V, expected: bool
+    tree_map: Tree[K, V], new_key: K, expected: bool
 ) -> None:
     result = check_correct_key_type(tree_map, new_key)
     assert result == expected
@@ -64,7 +64,7 @@ def test_check_correct_value_type(
         (make_dummy([1], [0]), 1, 0),
     ],
 )
-def test_get_value_by_key(tree_map: Tree[V], key: V, expected: V) -> None:
+def test_get_value_by_key(tree_map: Tree[K, V], key: K, expected: V) -> None:
     result = get_value_by_key(tree_map, key)
     assert result == expected
 
@@ -78,7 +78,7 @@ def test_get_value_by_key(tree_map: Tree[V], key: V, expected: V) -> None:
         (make_dummy([1], [1]), 5),
     ],
 )
-def test_get_value_by_key_exception_case(tree_map: Tree[V], key: V) -> None:
+def test_get_value_by_key_exception_case(tree_map: Tree[K, V], key: K) -> None:
     with pytest.raises(ValueError):
         get_value_by_key(tree_map, key)
 
@@ -99,7 +99,7 @@ def test_get_value_by_key_exception_case(tree_map: Tree[V], key: V) -> None:
         (make_dummy([1], [1]), 5, False),
     ],
 )
-def test_has_key(tree_map: Tree[V], key: V, expected: bool) -> None:
+def test_has_key(tree_map: Tree[K, V], key: K, expected: bool) -> None:
     result = has_key(tree_map, key)
     assert result == expected
 
@@ -155,7 +155,7 @@ def test_has_key(tree_map: Tree[V], key: V, expected: bool) -> None:
         (make_dummy([1], [1]), "preorder", [1]),
     ],
 )
-def test_traverse(tree_map: Tree[V], order: str, expected: list[V]) -> None:
+def test_traverse(tree_map: Tree[K, V], order: str, expected: list[V]) -> None:
     result = traverse(tree_map, order)
     assert result == expected
 
@@ -164,7 +164,7 @@ def test_traverse(tree_map: Tree[V], order: str, expected: list[V]) -> None:
     "tree_map,order",
     [(create_tree(), "preorder"), (make_dummy([1, 2, 3], [3, 4, 5]), "monkeflipPOG:D")],
 )
-def test_traverse_exception_case(tree_map: Tree[V], order: str) -> None:
+def test_traverse_exception_case(tree_map: Tree[K, V], order: str) -> None:
     with pytest.raises(ValueError):
         traverse(tree_map, order)
 
@@ -211,7 +211,7 @@ def test_traverse_exception_case(tree_map: Tree[V], order: str) -> None:
     ],
 )
 def test_put_value_by_key(
-    tree_map: Tree[V], key: V, value_to_put: V, expected: list[V]
+    tree_map: Tree[K, V], key: K, value_to_put: V, expected: list[K, V]
 ) -> None:
     put_value_by_key(tree_map, key, value_to_put)
     result = traverse(tree_map, "preorder")
@@ -238,7 +238,7 @@ def test_put_value_by_key(
     ],
 )
 def test_put_value_by_key_exception_cases(
-    tree_map: Tree[V], key: V, value_to_put: V
+    tree_map: Tree[K, V], key: K, value_to_put: V
 ) -> None:
     with pytest.raises(ValueError):
         put_value_by_key(tree_map, key, value_to_put)
@@ -267,7 +267,7 @@ def test_put_value_by_key_exception_cases(
         ),
     ],
 )
-def test_remove_value_by_key(tree_map: Tree[V], key: V, expected) -> None:
+def test_remove_value_by_key(tree_map: Tree[K, V], key: K, expected: list[V]) -> None:
     remove_value_by_key(tree_map, key)
     result = traverse(tree_map)
     assert result == expected
@@ -294,7 +294,7 @@ def test_remove_value_by_key(tree_map: Tree[V], key: V, expected) -> None:
         ),
     ],
 )
-def test_remove_value_by_key(tree_map: Tree[V], key: V) -> None:
+def test_remove_value_by_key(tree_map: Tree[K, V], key: K) -> None:
     with pytest.raises(ValueError):
         remove_value_by_key(tree_map, key)
 
@@ -311,6 +311,6 @@ def test_remove_value_by_key(tree_map: Tree[V], key: V) -> None:
         (create_tree()),
     ],
 )
-def test_delete_tree_map(tree_map: Tree[V]) -> None:
+def test_delete_tree_map(tree_map: Tree[K, V]) -> None:
     delete_tree_map(tree_map)
     assert tree_map == create_tree()
