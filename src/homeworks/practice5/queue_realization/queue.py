@@ -1,39 +1,42 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import TypeVar, Generic, Optional
+
+
+N = TypeVar("N")
 
 
 @dataclass
-class Node:
-    current_value: None
-    next_value: None
+class Node(Generic[N]):
+    current_value: N
+    next_value: Optional["Node[N]"] = None
 
 
 @dataclass
-class Queue:
+class Queue(Generic[N]):
     size: int = 0
-    head: Node = None
-    tail: Node = None
+    head: Optional[Node[N]] = None
+    tail: Optional[Node[N]] = None
 
 
-def create_new_queue() -> Queue:
+def create_new_queue() -> Queue[N]:
     return Queue()
 
 
-def get_size(given_queue: Queue) -> int:
+def get_size(given_queue: Queue[N]) -> int:
     return given_queue.size
 
 
-def is_empty(given_queue: Queue) -> bool:
+def is_empty(given_queue: Queue[N]) -> bool:
     return get_size(given_queue) == 0
 
 
-def get_top(given_queue: Queue) -> Any:
+def get_top(given_queue: Queue[N]) -> Optional[N]:
     if is_empty(given_queue):
         return None
     return given_queue.head.current_value
 
 
-def push(given_queue: Queue, new_value: Any) -> None:
+def push(given_queue: Queue[N], new_value: N) -> None:
     new_element = Node(new_value, None)
     if is_empty(given_queue):
         given_queue.head = new_element
@@ -46,8 +49,10 @@ def push(given_queue: Queue, new_value: Any) -> None:
     given_queue.size += 1
 
 
-def pop(given_queue: Queue) -> None:
+def pop(given_queue: Queue[N]) -> Optional[N]:
     if is_empty(given_queue):
         return None
+    result = given_queue.head.current_value
     given_queue.head = given_queue.head.next_value
     given_queue.size -= 1
+    return result
