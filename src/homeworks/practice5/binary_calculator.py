@@ -91,34 +91,27 @@ def binary_reverse_to_straight(input_binary_reverse: str) -> str:
 
 def operation_plus_binary(
     first_binary: str, second_binary: str, *, encoding_type: str = "additional"
-):
-    def add_additional_term(
-        binary_number: str, digit_before_additional_term: str, additional_term: str
-    ) -> tuple[str, str]:
-        if additional_term == "1":
-            if digit_before_additional_term == "0":
-                return binary_number + "1", "0"
-            else:
-                return binary_number + "0", "1"
-        return binary_number + digit_before_additional_term, "0"
-
-    result_binary = ""
-    additional_term = "0"
+) -> str:
+    first_binary = list(map(int, first_binary))
+    second_binary = list(map(int, second_binary))
+    result_binary = []
+    additional_term = 0
     for digit_index_binary in range(len(first_binary) - 1, -1, -1):
         digit_of_first_binary = first_binary[digit_index_binary]
         digit_of_second_binary = second_binary[digit_index_binary]
         if digit_of_first_binary == digit_of_second_binary:
-            result_binary, additional_term = add_additional_term(
-                result_binary, "0", additional_term
-            )
-            if digit_of_first_binary == "1":
-                additional_term = "1"
+            result_binary.append(additional_term)
+            additional_term = 0
+            if digit_of_first_binary == 1:
+                additional_term = 1
         else:
-            result_binary, additional_term = add_additional_term(
-                result_binary, "1", additional_term
-            )
-    result_binary = result_binary[::-1]
-    if additional_term == "1" and encoding_type == "back":
+            if additional_term == 1:
+                result_binary.append(0)
+                additional_term = 1
+            else:
+                result_binary.append(1)
+    result_binary = "".join(map(str, result_binary[::-1]))
+    if additional_term == 1 and encoding_type == "back":
         result_binary = operation_plus_binary(
             result_binary, "1".rjust(len(result_binary), "0")
         )
