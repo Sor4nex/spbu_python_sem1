@@ -4,22 +4,6 @@ from io import StringIO
 
 
 @pytest.mark.parametrize(
-    "input_str,expected", [("Hello world!", 119), ("a", 97), ("aab", 98), ("hh", 104)]
-)
-def test_get_max_codepoint(input_str: str, expected: int) -> None:
-    result = get_max_codepoint(input_str)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
-    "input_str,expected", [("hello world!", (16, 4)), ("Hello, asian 🩭", (32, 6))]
-)
-def test_get_needed_bit_length(input_str: str, expected: tuple[int, int]) -> None:
-    result = get_needed_bit_length(input_str)
-    assert result == expected
-
-
-@pytest.mark.parametrize(
     "bin_str,expected",
     [
         ("12345678", "12345678"),
@@ -33,28 +17,24 @@ def test_divide_by_octets(bin_str: str, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    "input_char,needed_length,expected",
-    [("H", 4, "U+0048"), ("h", 4, "U+0068"), ("𮗫", 6, "U+02E5EB")],
+    "input_char,expected",
+    [("H", "U+0048"), ("h", "U+0068"), ("𮗫", "U+2E5EB")],
 )
-def test_get_char_hex_unicode(
-    input_char: str, needed_length: int, expected: str
-) -> None:
-    result = get_char_hex_unicode(input_char, needed_length)
+def test_get_char_hex_unicode(input_char: str, expected: str) -> None:
+    result = get_char_hex_unicode(input_char)
     assert result == expected
 
 
 @pytest.mark.parametrize(
-    "input_char,needed_length,expected",
+    "input_char,expected",
     [
-        ("H", 16, "0000000001001000"),
-        ("h", 16, "0000000001101000"),
-        ("𮗫", 32, "00000000000000101110010111101011"),
+        ("H", "0000000001001000"),
+        ("h", "0000000001101000"),
+        ("𮗫", "11011000011110011101110111101011"),
     ],
 )
-def test_get_char_binary_unicode(
-    input_char: str, needed_length: int, expected: str
-) -> None:
-    result = get_char_binary_unicode(input_char, needed_length)
+def test_get_char_binary_unicode(input_char: str, expected: str) -> None:
+    result = get_char_binary_unicode(input_char)
     assert result == expected
 
 
@@ -67,7 +47,7 @@ def test_get_char_binary_unicode(
         ),
         (
             "𓐥𓈴Օ",
-            "𓐥:\tU+013425\t00000000 00000001 00110100 00100101\n𓈴:\tU+013234\t00000000 00000001 00110010 00110100\nՕ:\tU+000555\t00000000 00000000 00000101 01010101\n",
+            "𓐥:\tU+13425\t11011000 00001101 11011100 00100101\n𓈴:\tU+13234\t11011000 00001100 11011110 00110100\nՕ:\tU+0555\t00000101 01010101\n",
         ),
         (" ", " :\tU+0020\t00000000 00100000\n"),
     ],
