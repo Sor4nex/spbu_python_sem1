@@ -1,7 +1,6 @@
 from typing import Iterator
 import string
 
-
 INTRODUCTION = (
     "This program helps to compress and decompress DNA string.\n"
     "Example: aaabbbb will be compressed to a3b4, a2b1c4 will be decompressed to aabcccc."
@@ -12,7 +11,6 @@ COMMAND_INPUT_INVITATION = (
 COMPRESS_VALUE_INPUT_INVITATION = "Type string to compress: "
 DECOMPRESS_VALUE_INPUT_INVITATION = "Type string to decompress: "
 SUCCESSFUL_RESULT = "Result:"
-
 
 ERROR_COMPRESS_INPUT = "Error: you should type in non-null string with no numbers, spaces or punctuation, only with symbols(e.g.<aabbccdedd>)"
 ERROR_DECOMPRESS_INPUT = "Error: you should type in non-null string in the format <AiBj...>, where A,B - symbols; i,j - relevant values count(e.g.<a3b4c1>)"
@@ -52,15 +50,16 @@ def convert_compressed_str_to_list(input_to_decompress: str) -> list[str]:
 
 
 def compress_dna(input_dna: list[str]) -> Iterator[str]:
-    current_symbol = input_dna[0]
-    suffix_len_counter = 1
-    for i in range(1, len(input_dna)):
-        if input_dna[i] == current_symbol:
-            suffix_len_counter += 1
-        else:
-            yield current_symbol + str(suffix_len_counter)
-            current_symbol, suffix_start_index, suffix_len_counter = input_dna[i], i, 1
-    yield current_symbol + str(suffix_len_counter)
+    char_switches = (
+        [False]
+        + list(
+            map(lambda i: input_dna[i - 1] == input_dna[i], range(1, len(input_dna)))
+        )
+        + [False]
+    )
+    for i in range(len(char_switches) - 1):
+        if not char_switches[i]:
+            yield input_dna[i] + str(char_switches.index(False, i + 1) - i)
 
 
 def decompress_dna(input_dna_compressed: list[str]) -> Iterator[str]:
