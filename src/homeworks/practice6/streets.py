@@ -23,7 +23,9 @@ def clear_street(tree_map: avl.Tree, street: avl.TreeNode) -> None:
         avl.remove_value_by_key(tree_map, street.key)
 
 
-def create_house(tree_map: avl.Tree, street_name: str, house: int, housing: int, index: int) -> None:
+def create_house(
+    tree_map: avl.Tree, street_name: str, house: int, housing: int, index: int
+) -> None:
     street = avl.get_cell_by_key(tree_map, street_name)
     if street is None:
         avl.put_value_by_key(tree_map, street_name, [(house, housing, index)])
@@ -31,7 +33,9 @@ def create_house(tree_map: avl.Tree, street_name: str, house: int, housing: int,
     street.value.append((house, housing, index))
 
 
-def get_house(tree_map: avl.Tree, street_name: str, house: int, housing: int) -> Optional[int]:
+def get_house(
+    tree_map: avl.Tree, street_name: str, house: int, housing: int
+) -> Optional[int]:
     street = avl.get_cell_by_key(tree_map, street_name)
     if street is None:
         return None
@@ -47,7 +51,9 @@ def rename_street(tree_map: avl.Tree, street_name: str, new_name: str) -> None:
     avl.put_value_by_key(tree_map, new_name, all_houses)
 
 
-def delete_block(tree_map: avl.Tree, street_name: str, house: int, housing: int) -> None:
+def delete_block(
+    tree_map: avl.Tree, street_name: str, house: int, housing: int
+) -> None:
     street = avl.get_cell_by_key(tree_map, street_name)
     if street is None:
         raise ValueError(f"no street ", street_name)
@@ -71,7 +77,9 @@ def delete_street(tree_map: avl.Tree, street_name: str) -> None:
     avl.remove_value_by_key(tree_map, street_name)
 
 
-def list_houses(tree_map: avl.Tree, address_left: list, address_right: list) -> list[str]:
+def list_houses(
+    tree_map: avl.Tree, address_left: list, address_right: list
+) -> list[str]:
     result = []
     all_streets = avl.traverse_cells(tree_map)
     for street in all_streets:
@@ -79,21 +87,35 @@ def list_houses(tree_map: avl.Tree, address_left: list, address_right: list) -> 
             address = [street.key] + list(houses[:-1])
             if address_left <= address < address_right:
                 result.append(address)
-    return list(map(lambda address: address[0] + " " + str(address[1]) + " " + str(address[2]), sorted(result)))
+    return list(
+        map(
+            lambda address: address[0] + " " + str(address[1]) + " " + str(address[2]),
+            sorted(result),
+        )
+    )
 
 
 def mode_static(file_input: str, file_ouput: str) -> None:
     streets = avl.create_tree()
-    with open(file_input, 'r', encoding="utf-8") as input_file:
+    with open(file_input, "r", encoding="utf-8") as input_file:
         output_file = open(file_ouput, "w", encoding="utf-8")
         for string in input_file:
             command = string.strip().split(" ")
             if len(command) == 1:
                 continue
             if command[0] == "CREATE":
-                create_house(streets, command[1], int(command[2]), int(command[3]), int(command[4]))
+                create_house(
+                    streets,
+                    command[1],
+                    int(command[2]),
+                    int(command[3]),
+                    int(command[4]),
+                )
             elif command[0] == "GET":
-                print(get_house(streets, command[1], int(command[2]), int(command[3])), file=output_file)
+                print(
+                    get_house(streets, command[1], int(command[2]), int(command[3])),
+                    file=output_file,
+                )
             elif command[0] == "RENAME":
                 rename_street(streets, command[1], command[2])
             elif command[0] == "DELETE_BLOCK":
@@ -112,7 +134,11 @@ def mode_static(file_input: str, file_ouput: str) -> None:
                 except ValueError:
                     pass
             elif command[0] == "LIST":
-                result = list_houses(streets, [command[1], int(command[2]), int(command[3])], [command[4], int(command[5]), int(command[6])])
+                result = list_houses(
+                    streets,
+                    [command[1], int(command[2]), int(command[3])],
+                    [command[4], int(command[5]), int(command[6])],
+                )
                 for house in result:
                     print(house, file=output_file)
                 print(file=output_file)
@@ -130,13 +156,18 @@ def mode_interactive() -> None:
             if not check_argument_count(command, 5):
                 print(ARGUMENT_COUNT_ERROR)
                 continue
-            create_house(streets, command[1], int(command[2]), int(command[3]), int(command[4]))
+            create_house(
+                streets, command[1], int(command[2]), int(command[3]), int(command[4])
+            )
             print(STRING_RESULT, STRING_SUCCESSFUL)
         elif command[0] == "GET":
             if not check_argument_count(command, 4):
                 print(ARGUMENT_COUNT_ERROR)
                 continue
-            print(STRING_RESULT, get_house(streets, command[1], int(command[2]), int(command[3])))
+            print(
+                STRING_RESULT,
+                get_house(streets, command[1], int(command[2]), int(command[3])),
+            )
         elif command[0] == "RENAME":
             if not check_argument_count(command, 3):
                 print(ARGUMENT_COUNT_ERROR)
@@ -173,7 +204,11 @@ def mode_interactive() -> None:
             if not check_argument_count(command, 7):
                 print(ARGUMENT_COUNT_ERROR)
                 continue
-            result = list_houses(streets, [command[1], int(command[2]), int(command[3])], [command[4], int(command[5]), int(command[6])])
+            result = list_houses(
+                streets,
+                [command[1], int(command[2]), int(command[3])],
+                [command[4], int(command[5]), int(command[6])],
+            )
             print(STRING_RESULT)
             for house in result:
                 print(house)

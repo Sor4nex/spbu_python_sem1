@@ -248,7 +248,9 @@ def remove_value_by_key(tree_map: Tree[K, V], key: K) -> V:
     return value
 
 
-def _remove_recursion(tree_node: TreeNode[K, V], key: K) -> tuple[Optional[TreeNode[K, V]], V]:
+def _remove_recursion(
+    tree_node: TreeNode[K, V], key: K
+) -> tuple[Optional[TreeNode[K, V]], V]:
     def find_minimal_son(tree_node: TreeNode[K, V]) -> TreeNode[K, V]:
         if tree_node.left is not None:
             return find_minimal_son(tree_node.left)
@@ -287,13 +289,23 @@ def _remove_recursion(tree_node: TreeNode[K, V], key: K) -> tuple[Optional[TreeN
 
 
 def remove_keys(tree_map: Tree[K, V], left: K, right: K) -> None:
-    def remove_keys_recursively(tree_node: TreeNode[K, V], left: K, right: K, deleted_keys_count: int) -> tuple[Optional[TreeNode[K, V]], int]:
+    def remove_keys_recursively(
+        tree_node: TreeNode[K, V], left: K, right: K, deleted_keys_count: int
+    ) -> tuple[Optional[TreeNode[K, V]], int]:
         if tree_node.left is None and tree_node.right is None:
             if left <= tree_node.key <= right:
                 return None, deleted_keys_count + 1
             return tree_node, deleted_keys_count
-        tree_node.left, deleted_keys_count = remove_keys_recursively(tree_node.left, left, right, deleted_keys_count) if tree_node.left is not None else (None, deleted_keys_count)
-        tree_node.right, deleted_keys_count = remove_keys_recursively(tree_node.right, left, right, deleted_keys_count) if tree_node.right is not None else (None, deleted_keys_count)
+        tree_node.left, deleted_keys_count = (
+            remove_keys_recursively(tree_node.left, left, right, deleted_keys_count)
+            if tree_node.left is not None
+            else (None, deleted_keys_count)
+        )
+        tree_node.right, deleted_keys_count = (
+            remove_keys_recursively(tree_node.right, left, right, deleted_keys_count)
+            if tree_node.right is not None
+            else (None, deleted_keys_count)
+        )
         if left <= tree_node.key <= right:
             tree_node = _remove_recursion(tree_node, tree_node.key)[0]
             deleted_keys_count += 1
@@ -304,7 +316,9 @@ def remove_keys(tree_map: Tree[K, V], left: K, right: K) -> None:
 
     if tree_map.size == 0:
         raise ValueError("no keys in the tree")
-    tree_map.root, deleted_keys_count = remove_keys_recursively(tree_map.root, left, right, 0)
+    tree_map.root, deleted_keys_count = remove_keys_recursively(
+        tree_map.root, left, right, 0
+    )
     tree_map.size -= deleted_keys_count
 
 
@@ -337,8 +351,12 @@ def join(tree_map: Tree[K, V], another: Tree[K, V]) -> None:
     def get_max_cell(tree_node: TreeNode[K, V]) -> TreeNode[K, V]:
         return tree_node if tree_node.right is None else get_max_cell(tree_node.right)
 
-    def merge_minor_major_trees(tree_minor: Tree[K, V], tree_major: Tree[K, V]) -> tuple[TreeNode[K, V], int]:
-        def get_approximate_height_cell(tree_node: TreeNode[K, V], given_height: int) -> TreeNode[K, V]:
+    def merge_minor_major_trees(
+        tree_minor: Tree[K, V], tree_major: Tree[K, V]
+    ) -> tuple[TreeNode[K, V], int]:
+        def get_approximate_height_cell(
+            tree_node: TreeNode[K, V], given_height: int
+        ) -> TreeNode[K, V]:
             if tree_node.height <= given_height + 1:
                 return tree_node
             return get_approximate_height_cell(tree_node.left, given_height)
@@ -346,10 +364,16 @@ def join(tree_map: Tree[K, V], another: Tree[K, V]) -> None:
         new_size = tree_minor.size + tree_major.size
         tree_minor_max_cell = get_max_cell(tree_minor.root)
         remove_value_by_key(tree_minor, tree_minor_max_cell.key)
-        approximate_height_cell = get_approximate_height_cell(tree_major.root, tree_minor.root.height if tree_minor.root is not None else 0)
+        approximate_height_cell = get_approximate_height_cell(
+            tree_major.root,
+            tree_minor.root.height if tree_minor.root is not None else 0,
+        )
 
         approximate_height_cell.right = copy.deepcopy(approximate_height_cell)
-        approximate_height_cell.key, approximate_height_cell.value = tree_minor_max_cell.key, tree_minor_max_cell.value
+        approximate_height_cell.key, approximate_height_cell.value = (
+            tree_minor_max_cell.key,
+            tree_minor_max_cell.value,
+        )
         approximate_height_cell.left = tree_minor.root
         balance_tree(approximate_height_cell)
         approximate_height_cell.height = update_height(approximate_height_cell)
@@ -362,9 +386,15 @@ def join(tree_map: Tree[K, V], another: Tree[K, V]) -> None:
         return tree1.root
 
     if tree_map.size == 0 or another.size == 0:
-        raise ValueError('some tree has no elements')
-    tree1_min, tree1_max = get_min_cell(tree_map.root).key, get_max_cell(tree_map.root).key
-    tree2_min, tree2_max = get_min_cell(another.root).key, get_max_cell(another.root).key
+        raise ValueError("some tree has no elements")
+    tree1_min, tree1_max = (
+        get_min_cell(tree_map.root).key,
+        get_max_cell(tree_map.root).key,
+    )
+    tree2_min, tree2_max = (
+        get_min_cell(another.root).key,
+        get_max_cell(another.root).key,
+    )
     if tree1_max < tree2_min:
         tree_map.root, tree_map.size = merge_minor_major_trees(tree_map, another)
     elif tree1_min > tree2_max:
