@@ -1,23 +1,26 @@
-from typing import Callable, Any, Iterator
+from typing import Callable, Any
 from datetime import datetime
+from functools import wraps
+from inspect import getcallargs
 
 
-def print_usage_statistic(
-    spied_function: Callable[[Any], Any]
-) -> Iterator[tuple[str, list]]:
-    try:
-        for call in spied_function.calls_board:
-            yield call
-    except AttributeError:
-        raise AttributeError("no usage statistic for undecorated function")
+def logger(file_path: str) -> Callable[[Any], Any]:
+    def spy(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
+        @wraps(func)
+        def substitution(*args, **kwargs) -> Any:
+            result = func(*args, **kwargs)
+            func_args = getcallargs(func, *args, **kwargs)
+            all_paramaters = [f"{arg}={func_args[arg]}" for arg in sorted(func_args)]
+            print(
+                datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+                func.__name__,
+                " ".join(all_paramaters),
+                result,
+                file=substitution.output_file,
+            )
+            return result
 
+        substitution.output_file = open(file_path, "w")
+        return substitution
 
-def spy(func: Callable[[Any], Any]) -> Callable[[Any], Any]:
-    def substitution(*args, **kwargs) -> Any:
-        all_params = {"positional arguments": args}
-        all_params.update(kwargs)
-        substitution.calls_board.append((datetime.now(), all_params))
-        return func(*args, **kwargs)
-
-    substitution.calls_board = []
-    return substitution
+    return spy
