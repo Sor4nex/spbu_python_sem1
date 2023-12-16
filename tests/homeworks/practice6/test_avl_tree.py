@@ -356,3 +356,188 @@ def test_get_maximum(keys, expected):
 def test_get_minimum(keys, expected):
     tree = make_dummy(keys, keys)
     assert get_minimum(tree) == expected
+
+
+@pytest.mark.parametrize(
+    "tree_map,left,right,expected,expected_keys_count",
+    [
+        (
+            make_dummy(
+                [50, 30, 80, 20, 40, 60, 100, 15], [50, 30, 80, 20, 40, 60, 100, 15]
+            ),
+            40,
+            80,
+            [15, 20, 30, 100],
+            4,
+        ),
+        (
+            make_dummy([10, 5, 15, 3, 7, 12, 18], [10, 5, 15, 3, 7, 12, 18]),
+            6,
+            13,
+            [3, 5, 15, 18],
+            4,
+        ),
+        (
+            make_dummy([20, 10, 30, 5, 15, 25, 35], [20, 10, 30, 5, 15, 25, 35]),
+            36,
+            40,
+            [5, 10, 15, 20, 25, 30, 35],
+            7,
+        ),
+        (
+            make_dummy([50, 30, 70, 20, 40, 60, 80], [50, 30, 70, 20, 40, 60, 80]),
+            10,
+            50,
+            [60, 70, 80],
+            3,
+        ),
+        (
+            make_dummy([40, 20, 60, 10, 30, 50, 70], [40, 20, 60, 10, 30, 50, 70]),
+            50,
+            80,
+            [10, 20, 30, 40],
+            4,
+        ),
+        (
+            make_dummy([5, 3, 7, 2, 4, 6, 8], [5, 3, 7, 2, 4, 6, 8]),
+            4,
+            4,
+            [2, 3, 5, 6, 7, 8],
+            6,
+        ),
+    ],
+)
+def test_remove_keys(
+    tree_map: Tree[K, V],
+    left: K,
+    right: K,
+    expected: list[int],
+    expected_keys_count: int,
+) -> None:
+    remove_keys(tree_map, left, right)
+    result = traverse(tree_map, "inorder")
+    assert result == expected and tree_map.size == expected_keys_count
+
+
+@pytest.mark.parametrize(
+    "tree_map,left,right,expected",
+    [
+        (
+            make_dummy(
+                [50, 30, 80, 20, 40, 60, 100, 15], [50, 30, 80, 20, 40, 60, 100, 15]
+            ),
+            40,
+            80,
+            [40, 50, 60, 80],
+        ),
+        (
+            make_dummy([10, 5, 15, 3, 7, 12, 18], [10, 5, 15, 3, 7, 12, 18]),
+            6,
+            13,
+            [7, 10, 12],
+        ),
+        (
+            make_dummy([20, 10, 30, 5, 15, 25, 35], [20, 10, 30, 5, 15, 25, 35]),
+            36,
+            40,
+            [],
+        ),
+        (make_dummy([5, 3, 7, 2, 4, 6, 8], [5, 3, 7, 2, 4, 6, 8]), 4, 4, [4]),
+    ],
+)
+def test_getAll(tree_map: Tree[K, V], left: K, right: K, expected: list[int]) -> None:
+    result = getAll(tree_map, left, right)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "tree_map,another,expected",
+    [
+        (
+            make_dummy([10, 5, 15], [10, 5, 15]),
+            make_dummy([20, 17, 25], [20, 17, 25]),
+            [5, 10, 15, 17, 20, 25],
+        ),
+        (
+            make_dummy([10, 5, 15], [10, 5, 15]),
+            make_dummy([15, 12, 18], [15, 12, 18]),
+            [5, 10, 12, 15, 18],
+        ),
+        (
+            make_dummy([50, 30, 70, 20, 40, 60, 80], [50, 30, 70, 20, 40, 60, 80]),
+            make_dummy([35, 25, 45, 55, 65, 75, 85], [35, 25, 45, 55, 65, 75, 85]),
+            [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85],
+        ),
+        (
+            make_dummy([1, 2, 3, 4, 5], [1, 2, 3, 4, 5]),
+            make_dummy([10, 9, 8, 7, 6], [10, 9, 8, 7, 6]),
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        ),
+        (make_dummy([1], [1]), make_dummy([2], [2]), [1, 2]),
+        (
+            make_dummy(
+                [50, 25, 75, 10, 30, 60, 90, 5, 15, 28, 35, 55, 65, 85, 95],
+                [50, 25, 75, 10, 30, 60, 90, 5, 15, 28, 35, 55, 65, 85, 95],
+            ),
+            make_dummy([20, 18, 22], [20, 18, 22]),
+            [5, 10, 15, 18, 20, 22, 25, 28, 30, 35, 50, 55, 60, 65, 75, 85, 90, 95],
+        ),
+        (
+            make_dummy(
+                [100, 50, 150, 25, 75, 125, 175], [100, 50, 150, 25, 75, 125, 175]
+            ),
+            make_dummy([10, 5, 15], [10, 5, 15]),
+            [5, 10, 15, 25, 50, 75, 100, 125, 150, 175],
+        ),
+        (
+            make_dummy([300, 200], [300, 200]),
+            make_dummy(
+                [100, 50, 150, 25, 75, 125, 175], [100, 50, 150, 25, 75, 125, 175]
+            ),
+            [25, 50, 75, 100, 125, 150, 175, 200, 300],
+        ),
+    ],
+)
+def test_join(tree_map: Tree[K, V], another: Tree[K, V], expected: list[int]):
+    if expected == [1, 2]:
+        pass
+    join(tree_map, another)
+    result = get_all_keys(tree_map)
+    assert result == expected
+
+
+@pytest.mark.parametrize(
+    "tree_map,key,expected1,expected2",
+    [
+        (
+            make_dummy([20, 10, 30, 5, 15, 25, 35], [20, 10, 30, 5, 15, 25, 35]),
+            15,
+            [5, 10],
+            [15, 20, 25, 30, 35],
+        ),
+        (
+            make_dummy([15, 5, 25, 20, 30], [15, 5, 25, 20, 30]),
+            30,
+            [5, 15, 20, 25],
+            [30],
+        ),
+        (
+            make_dummy([30, 10, 50, 5, 20, 40, 60], [30, 10, 50, 5, 20, 40, 60]),
+            15,
+            [5, 10],
+            [20, 30, 40, 50, 60],
+        ),
+        (
+            make_dummy([50, 30, 70, 20, 40, 60, 80], [50, 30, 70, 20, 40, 60, 80]),
+            55,
+            [20, 30, 40, 50],
+            [60, 70, 80],
+        ),
+    ],
+)
+def test_split(
+    tree_map: Tree[K, V], key: K, expected1: list[int], expected2: list[int]
+) -> None:
+    tree1, tree2 = split(tree_map, key)
+    result1, result2 = traverse(tree1, "inorder"), traverse(tree2, "inorder")
+    assert result1 == expected1 and result2 == expected2

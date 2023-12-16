@@ -1,3 +1,4 @@
+import copy
 from dataclasses import dataclass
 from numbers import Number
 from typing import Optional, TypeVar, Generic, Callable, Iterable
@@ -175,6 +176,10 @@ def get_all_keys(tree_map: Tree[K, V]) -> list[K]:
     return list(map(lambda cell: cell.key, traverse_cells(tree_map, "inorder")))
 
 
+def getAll(tree_map: Tree[K, V], left: K, right: K) -> list[K]:
+    return list(filter(lambda key: left <= key <= right, get_all_keys(tree_map)))
+
+
 def get_lower_bound(tree_map: Tree[K, V], key: K) -> K:
     all_keys = get_all_keys(tree_map)
     keys_lower_bound = list(filter(lambda elem: elem >= key, all_keys))
@@ -238,49 +243,83 @@ def traverse(tree_map: Tree[K, V], order: str = "preorder") -> list[V]:
 def remove_value_by_key(tree_map: Tree[K, V], key: K) -> V:
     if not has_key(tree_map, key):
         raise ValueError(f"No such key {key}")
+    tree_map.root, value = _remove_recursion(tree_map.root, key)
+    tree_map.size -= 1
+    return value
 
+
+def _remove_recursion(
+    tree_node: TreeNode[K, V], key: K
+) -> tuple[Optional[TreeNode[K, V]], V]:
     def find_minimal_son(tree_node: TreeNode[K, V]) -> TreeNode[K, V]:
         if tree_node.left is not None:
             return find_minimal_son(tree_node.left)
         return tree_node
 
-    def remove_recursion(
-        tree_node: TreeNode[K, V], key: K
-    ) -> tuple[Optional[TreeNode[K, V]], V]:
-        if tree_node.key < key:
-            new_right_child, value = remove_recursion(tree_node.right, key)
-            tree_node.right = new_right_child
-            balance_tree(tree_node)
-            tree_node.height = update_height(tree_node)
-            return tree_node, value
-        elif tree_node.key > key:
-            new_left_child, value = remove_recursion(tree_node.left, key)
-            tree_node.left = new_left_child
-            balance_tree(tree_node)
-            tree_node.height = update_height(tree_node)
-            return tree_node, value
-        if tree_node.left is None and tree_node.right is None:
-            return None, tree_node.value
-        if tree_node.left is None or tree_node.right is None:
-            new_node = tree_node.left if tree_node.left is not None else tree_node.right
-            return new_node, tree_node.value
-        else:
-            minimal = find_minimal_son(tree_node.right)
-            new_node_right, value = remove_recursion(tree_node.right, minimal.key)
-            new_node = TreeNode(
-                minimal.key,
-                minimal.value,
-                tree_node.height,
-                tree_node.left,
-                new_node_right,
-            )
-            balance_tree(tree_node)
-            new_node.height = update_height(tree_node)
-            return new_node, value
+    if tree_node.key < key:
+        new_right_child, value = _remove_recursion(tree_node.right, key)
+        tree_node.right = new_right_child
+        balance_tree(tree_node)
+        tree_node.height = update_height(tree_node)
+        return tree_node, value
+    elif tree_node.key > key:
+        new_left_child, value = _remove_recursion(tree_node.left, key)
+        tree_node.left = new_left_child
+        balance_tree(tree_node)
+        tree_node.height = update_height(tree_node)
+        return tree_node, value
+    if tree_node.left is None and tree_node.right is None:
+        return None, tree_node.value
+    if tree_node.left is None or tree_node.right is None:
+        new_node = tree_node.left if tree_node.left is not None else tree_node.right
+        return new_node, tree_node.value
+    else:
+        minimal = find_minimal_son(tree_node.right)
+        new_node_right, value = _remove_recursion(tree_node.right, minimal.key)
+        new_node = TreeNode(
+            minimal.key,
+            minimal.value,
+            tree_node.height,
+            tree_node.left,
+            new_node_right,
+        )
+        balance_tree(tree_node)
+        new_node.height = update_height(tree_node)
+        return new_node, value
 
-    tree_map.root, value = remove_recursion(tree_map.root, key)
-    tree_map.size -= 1
-    return value
+
+def remove_keys(tree_map: Tree[K, V], left: K, right: K) -> None:
+    def remove_keys_recursively(
+        tree_node: TreeNode[K, V], left: K, right: K, deleted_keys_count: int
+    ) -> tuple[Optional[TreeNode[K, V]], int]:
+        if tree_node.left is None and tree_node.right is None:
+            if left <= tree_node.key <= right:
+                return None, deleted_keys_count + 1
+            return tree_node, deleted_keys_count
+        tree_node.left, deleted_keys_count = (
+            remove_keys_recursively(tree_node.left, left, right, deleted_keys_count)
+            if tree_node.left is not None
+            else (None, deleted_keys_count)
+        )
+        tree_node.right, deleted_keys_count = (
+            remove_keys_recursively(tree_node.right, left, right, deleted_keys_count)
+            if tree_node.right is not None
+            else (None, deleted_keys_count)
+        )
+        if left <= tree_node.key <= right:
+            tree_node = _remove_recursion(tree_node, tree_node.key)[0]
+            deleted_keys_count += 1
+        if tree_node is not None:
+            balance_tree(tree_node)
+            tree_node.height = update_height(tree_node)
+        return tree_node, deleted_keys_count
+
+    if tree_map.size == 0:
+        raise ValueError("no keys in the tree")
+    tree_map.root, deleted_keys_count = remove_keys_recursively(
+        tree_map.root, left, right, 0
+    )
+    tree_map.size -= deleted_keys_count
 
 
 def get_cell_by_key(tree_map: Tree[K, V], key: K) -> Optional[TreeNode[K, V]]:
@@ -303,3 +342,75 @@ def get_cell_by_key(tree_map: Tree[K, V], key: K) -> Optional[TreeNode[K, V]]:
 def has_key(tree_map: Tree[K, V], key: K) -> bool:
     key_cell = get_cell_by_key(tree_map, key)
     return key_cell is not None
+
+
+def join(tree_map: Tree[K, V], another: Tree[K, V]) -> None:
+    def get_min_cell(tree_node: TreeNode[K, V]) -> TreeNode[K, V]:
+        return tree_node if tree_node.left is None else get_min_cell(tree_node.left)
+
+    def get_max_cell(tree_node: TreeNode[K, V]) -> TreeNode[K, V]:
+        return tree_node if tree_node.right is None else get_max_cell(tree_node.right)
+
+    def merge_minor_major_trees(
+        tree_minor: Tree[K, V], tree_major: Tree[K, V]
+    ) -> tuple[TreeNode[K, V], int]:
+        def get_approximate_height_cell(
+            tree_node: TreeNode[K, V], given_height: int
+        ) -> TreeNode[K, V]:
+            if tree_node.height <= given_height + 1:
+                return tree_node
+            return get_approximate_height_cell(tree_node.left, given_height)
+
+        new_size = tree_minor.size + tree_major.size
+        tree_minor_max_cell = get_max_cell(tree_minor.root)
+        remove_value_by_key(tree_minor, tree_minor_max_cell.key)
+        approximate_height_cell = get_approximate_height_cell(
+            tree_major.root,
+            tree_minor.root.height if tree_minor.root is not None else 0,
+        )
+
+        approximate_height_cell.right = copy.deepcopy(approximate_height_cell)
+        approximate_height_cell.key, approximate_height_cell.value = (
+            tree_minor_max_cell.key,
+            tree_minor_max_cell.value,
+        )
+        approximate_height_cell.left = tree_minor.root
+        balance_tree(approximate_height_cell)
+        approximate_height_cell.height = update_height(approximate_height_cell)
+        return tree_major.root, new_size
+
+    def merge_mixed_trees(tree1: Tree[K, V], tree2: Tree[K, V]) -> TreeNode[K, V]:
+        cell_to_join = traverse_cells(tree2)
+        for cell in cell_to_join:
+            put_value_by_key(tree1, cell.key, cell.value)
+        return tree1.root
+
+    if tree_map.size == 0 or another.size == 0:
+        raise ValueError("some tree has no elements")
+    tree1_min, tree1_max = (
+        get_min_cell(tree_map.root).key,
+        get_max_cell(tree_map.root).key,
+    )
+    tree2_min, tree2_max = (
+        get_min_cell(another.root).key,
+        get_max_cell(another.root).key,
+    )
+    if tree1_max < tree2_min:
+        tree_map.root, tree_map.size = merge_minor_major_trees(tree_map, another)
+    elif tree1_min > tree2_max:
+        tree_map.root, tree_map.size = merge_minor_major_trees(another, tree_map)
+    if tree_map.size >= another.size:
+        tree_map.root = merge_mixed_trees(tree_map, another)
+    else:
+        tree_map.root = merge_mixed_trees(another, tree_map)
+
+
+def split(tree_map: Tree[K, V], key: K) -> tuple[Tree[K, V], Tree[K, V]]:
+    all_cells = traverse_cells(tree_map, "inorder")
+    tree1, tree2 = create_tree(), create_tree()
+    for cell in all_cells:
+        if cell.key < key:
+            put_value_by_key(tree1, cell.key, cell.value)
+        else:
+            put_value_by_key(tree2, cell.key, cell.value)
+    return tree1, tree2
