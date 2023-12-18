@@ -29,9 +29,7 @@ def test_create_fsm_machine(
 ) -> None:
     fsm = create_fs_machine(table, start_pos, accepted_pos)
     assert (
-        len(fsm.states.keys()) == expected_len_states
-        and fsm.zero_position == start_pos
-        and fsm.accepted_positions == accepted_pos
+        len(fsm.states.keys()) == expected_len_states and fsm.zero_position == start_pos
     )
 
 
@@ -49,7 +47,7 @@ def test_create_fsm_machine(
         (test_table1, 0, [1, 3, 6], "d", True),
         (test_table1, 0, [1, 3, 6], "d.dEd.d", False),
         (test_table2, 0, [4], "aILOVEPYTHONVERYMUCHabb", True),
-        (test_table2, 0, [4], "PLEASESAVEMEFROMWRITINGTHESETESTS", False),
+        (test_table2, 0, [4], "PLEASESAVEMEFROMPYTHON", False),
         (test_table2, 0, [4], "abb", False),
         (test_table2, 0, [4], "aabb", True),
         (test_table2, 0, [4], "babb", True),

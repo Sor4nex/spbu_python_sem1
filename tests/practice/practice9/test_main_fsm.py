@@ -5,26 +5,6 @@ from src.practice.practice9.main_fsm import *
 
 
 @pytest.mark.parametrize(
-    "input_string, expected",
-    [
-        ("123.3E12345", True),
-        ("123.23E-11111", True),
-        ("123.23E+11111", True),
-        ("011E+4444", True),
-        (".01E+09942", False),
-        ("1.123+11111", False),
-        ("1.123E", False),
-        ("123.123", True),
-        ("321", True),
-        ("1.2E2.1", False),
-    ],
-)
-def test_validate_string_float(input_string, expected) -> None:
-    fsm = maks_fsm_float()
-    assert validate_string_float(fsm, input_string) == expected
-
-
-@pytest.mark.parametrize(
     "user_input, expected",
     [
         ("123.3E12345", RESULT_FLOAT_FSM),
@@ -37,6 +17,13 @@ def test_validate_string_float(input_string, expected) -> None:
         ("123.123", RESULT_FLOAT_FSM),
         ("321", RESULT_FLOAT_FSM),
         ("1.2E2.1", RESULT_NOTHING),
+        ("aILOVEPYTHONVERYMUCHabb", RESULT_AB_FSM),
+        ("PLEASESAVEMEFROMPYTHON", RESULT_NOTHING),
+        ("abb", RESULT_NOTHING),
+        ("aabb", RESULT_AB_FSM),
+        ("babb", RESULT_AB_FSM),
+        ("bbabb", RESULT_AB_FSM),
+        ("aabbabbabbbbabccbabb", RESULT_AB_FSM),
     ],
 )
 def test_main(monkeypatch, user_input, expected) -> None:

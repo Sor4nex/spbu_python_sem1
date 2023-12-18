@@ -1,41 +1,45 @@
 import src.practice.practice9.fsm as fsm
+from string import digits
 
 
 INPUT_INVITE = "enter a string: "
 RESULT_FLOAT_FSM = 'Result: belongs to "digit+(.digit+)?(E(+|-)?digit+)?"'
+RESULT_AB_FSM = 'Result: belongs to "(a|b)*abb"'
 RESULT_NOTHING = "Result: does not belong to any fsm"
 
 
-def maks_fsm_float() -> fsm.FSMachine:
+def make_fsm_float() -> fsm.FSMachine:
     fsm_table = {
-        0: {"d": 1},
-        1: {"E": 4, "d": 1, ".": 2},
-        2: {"d": 3},
-        3: {"E": 4, "d": 3},
-        4: {"+": 5, "-": 5, "d": 6},
-        5: {"d": 6},
-        6: {"d": 6},
+        0: {digits: 1},
+        1: {"E": 4, digits: 1, ".": 2},
+        2: {digits: 3},
+        3: {"E": 4, digits: 3},
+        4: {"+": 5, "-": 5, digits: 6},
+        5: {digits: 6},
+        6: {digits: 6},
     }
     return fsm.create_fs_machine(fsm_table, 0, [1, 3, 6])
 
 
-def validate_string_float(given_fsm: fsm.FSMachine, input_string: str) -> bool:
-    input_string = list(input_string)
-    if "d" in input_string:
-        return False
-    for i in range(len(input_string)):
-        if input_string[i].isdigit():
-            input_string[i] = "d"
-    return fsm.validate_string(given_fsm, "".join(input_string))
+def make_fsm_ab() -> fsm.FSMachine:
+    fsm_table = {
+        0: {"a": 1, "b": 1},
+        1: {"a": 2, "*": 1},
+        2: {"b": 3, "*": 1},
+        3: {"b": 4, "*": 1},
+        4: {"*": 1},
+    }
+    return fsm.create_fs_machine(fsm_table, 0, [4])
 
 
 def main() -> None:
-    fsm_float = maks_fsm_float()
+    all_fsm = [(make_fsm_float(), RESULT_FLOAT_FSM), (make_fsm_ab(), RESULT_AB_FSM)]
     user_input = input(INPUT_INVITE)
-    if validate_string_float(fsm_float, user_input):
-        print(RESULT_FLOAT_FSM)
-    else:
-        print(RESULT_NOTHING)
+    for single_fsm in all_fsm:
+        if fsm.validate_string(single_fsm[0], user_input):
+            print(single_fsm[1])
+            return None
+    print(RESULT_NOTHING)
 
 
 if __name__ == "__main__":
