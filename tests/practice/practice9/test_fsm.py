@@ -1,62 +1,64 @@
+import string
 import pytest
 from src.practice.practice9.fsm import *
 
 
-test_table1 = {
-    0: {"d": 1},
-    1: {"E": 4, "d": 1, ".": 2},
-    2: {"d": 3},
-    3: {"E": 4, "d": 3},
-    4: {"+": 5, "-": 5, "d": 6},
-    5: {"d": 6},
-    6: {"d": 6},
-}
-test_table2 = {
-    0: {"a": 1, "b": 1},
-    1: {"a": 2, "*": 1},
-    2: {"b": 3, "*": 1},
-    3: {"b": 4, "*": 1},
-    4: {"*": 1},
-}
+def make_table1() -> FSMachine:
+    fsm_table = {
+        0: {string.digits: 1},
+        1: {"E": 4, string.digits: 1, ".": 2},
+        2: {string.digits: 3},
+        3: {"E": 4, string.digits: 3},
+        4: {"+": 5, "-": 5, string.digits: 6},
+        5: {string.digits: 6},
+        6: {string.digits: 6},
+    }
+    return create_fs_machine(fsm_table, 0, [1, 3, 6])
+
+
+def make_table2() -> FSMachine:
+    fsm_table = {
+        0: {"a": 1, "b": 1},
+        1: {"a": 2, "b": 1},
+        2: {"b": 3, "a": 2},
+        3: {"b": 4, "a": 2},
+        4: {"a": 2, "b": 1},
+    }
+    return create_fs_machine(fsm_table, 0, [4])
 
 
 @pytest.mark.parametrize(
-    "table, start_pos, accepted_pos, expected_len_states",
-    [(test_table1, 0, [1, 3, 6], 7), (test_table2, 0, [4], 5)],
+    "fsm, start_pos, accepted_pos, expected_len_states",
+    [(make_table1(), 0, [4], 7)],
 )
-def test_create_fsm_machine(
-    table, start_pos, accepted_pos, expected_len_states
-) -> None:
-    fsm = create_fs_machine(table, start_pos, accepted_pos)
+def test_create_fsm_machine(fsm, start_pos, accepted_pos, expected_len_states) -> None:
     assert (
-        len(fsm.states.keys()) == expected_len_states and fsm.zero_position == start_pos
+        len(fsm.states.keys()) == expected_len_states
+        and fsm.start_state_ind == start_pos
     )
 
 
 @pytest.mark.parametrize(
-    "table, start_pos, accepted_pos, input_string, expected",
+    "fsm, start_pos, accepted_pos, input_string, expected",
     [
-        (test_table1, 0, [1, 3, 6], "ddd.ddEddddd", True),
-        (test_table1, 0, [1, 3, 6], "ddd.ddE-ddddd", True),
-        (test_table1, 0, [1, 3, 6], "ddd.ddE+ddddd", True),
-        (test_table1, 0, [1, 3, 6], "dddE+ddddd", True),
-        (test_table1, 0, [1, 3, 6], ".dddE+ddddd", False),
-        (test_table1, 0, [1, 3, 6], "d.ddd+ddddd", False),
-        (test_table1, 0, [1, 3, 6], "d.dddE", False),
-        (test_table1, 0, [1, 3, 6], "d.ddd", True),
-        (test_table1, 0, [1, 3, 6], "d", True),
-        (test_table1, 0, [1, 3, 6], "d.dEd.d", False),
-        (test_table2, 0, [4], "aILOVEPYTHONVERYMUCHabb", True),
-        (test_table2, 0, [4], "PLEASESAVEMEFROMPYTHON", False),
-        (test_table2, 0, [4], "abb", False),
-        (test_table2, 0, [4], "aabb", True),
-        (test_table2, 0, [4], "babb", True),
-        (test_table2, 0, [4], "bbabb", True),
-        (test_table2, 0, [4], "aabbabbabbbbabccbabb", True),
+        (make_table1(), 0, [1, 3, 6], "123.33E333", True),
+        (make_table1(), 0, [1, 3, 6], "11.1234E-3", True),
+        (make_table1(), 0, [1, 3, 6], "123.76E+10", True),
+        (make_table1(), 0, [1, 3, 6], "123E+1234", True),
+        (make_table1(), 0, [1, 3, 6], ".13E+3", False),
+        (make_table1(), 0, [1, 3, 6], "1.23+5435", False),
+        (make_table1(), 0, [1, 3, 6], "4.1234E", False),
+        (make_table1(), 0, [1, 3, 6], "3.123", True),
+        (make_table1(), 0, [1, 3, 6], "4", True),
+        (make_table1(), 0, [1, 3, 6], "4.3E3.3", False),
+        (make_table2(), 0, [4], "aILOVEPYTHONVERYMUCHabb", False),
+        (make_table2(), 0, [4], "PLEASESAVEMEFROMPYTHON", False),
+        (make_table2(), 0, [4], "abb", False),
+        (make_table2(), 0, [4], "aabb", True),
+        (make_table2(), 0, [4], "babb", True),
+        (make_table2(), 0, [4], "bbabb", True),
+        (make_table2(), 0, [4], "aabbabbabbbbabbabb", True),
     ],
 )
-def test_validate_string(
-    table, start_pos, accepted_pos, input_string, expected
-) -> None:
-    fsm = create_fs_machine(table, start_pos, accepted_pos)
+def test_validate_string(fsm, start_pos, accepted_pos, input_string, expected) -> None:
     assert validate_string(fsm, input_string) == expected

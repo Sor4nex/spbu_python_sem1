@@ -17,13 +17,13 @@ from src.practice.practice9.main_fsm import *
         ("123.123", RESULT_FLOAT_FSM),
         ("321", RESULT_FLOAT_FSM),
         ("1.2E2.1", RESULT_NOTHING),
-        ("aILOVEPYTHONVERYMUCHabb", RESULT_AB_FSM),
+        ("aILOVEPYTHONVERYMUCHabb", RESULT_NOTHING),
         ("PLEASESAVEMEFROMPYTHON", RESULT_NOTHING),
         ("abb", RESULT_NOTHING),
         ("aabb", RESULT_AB_FSM),
         ("babb", RESULT_AB_FSM),
         ("bbabb", RESULT_AB_FSM),
-        ("aabbabbabbbbabccbabb", RESULT_AB_FSM),
+        ("aabbabbabbbbabbabb", RESULT_AB_FSM),
     ],
 )
 def test_main(monkeypatch, user_input, expected) -> None:

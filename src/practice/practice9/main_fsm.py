@@ -24,10 +24,10 @@ def make_fsm_float() -> fsm.FSMachine:
 def make_fsm_ab() -> fsm.FSMachine:
     fsm_table = {
         0: {"a": 1, "b": 1},
-        1: {"a": 2, "*": 1},
-        2: {"b": 3, "*": 1},
-        3: {"b": 4, "*": 1},
-        4: {"*": 1},
+        1: {"a": 2, "b": 1},
+        2: {"b": 3, "a": 2},
+        3: {"b": 4, "a": 2},
+        4: {"a": 2, "b": 1},
     }
     return fsm.create_fs_machine(fsm_table, 0, [4])
 
